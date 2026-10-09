@@ -1,107 +1,51 @@
-# AR Schematics — AR Construction Schematic Simulator
+# AR Schematics — Laravel 13
 
-A browser-based augmented reality (AR) prototype for viewing 3D construction plans. Users can upload a 3D model in `.glb` or `.gltf` format and launch a camera-based scene to preview the model.
+Laravel 13 conversion of the AR Construction Schematic Simulator. The UI uses Blade, with A-Frame and AR.js for 3D rendering and camera preview.
 
-## Features
+## Requirements
+- PHP 8.3+
+- Composer 2
+- A WebGL-capable browser and camera permission
+- Internet access for A-Frame and AR.js CDN assets
 
-- **3D model upload:** Select a local `.glb` or `.gltf` file from your device.
-- **Browser-based 3D rendering:** Uses [A-Frame](https://aframe.io/) to display the model in a 3D scene.
-- **Camera-enabled AR scene:** Uses [AR.js](https://ar-js-org.github.io/AR.js-Docs/) to provide camera-based AR functionality.
-- **Grid reference:** Includes a wireframe grid to help visualize the scene.
-- **Fullscreen view:** Attempts to enter fullscreen when the simulation starts.
-- **Simple model animation:** Rotates the model container to provide a basic preview effect.
-
-## Technologies Used
-
-- HTML5
-- CSS3
-- JavaScript
-- [A-Frame 1.4.0](https://aframe.io/)
-- [AR.js](https://github.com/AR-js-org/AR.js)
-
-The A-Frame and AR.js libraries are loaded from external URLs in `index.html`, so an internet connection is required for those dependencies.
-
-## Project Structure
-
-```text
-AR-schematics/
-├── index.html
-├── artstation_challenge_-_untamed_-_cat_duelist.glb
-└── package-lock.json
+## Setup
+```bash
+git clone https://github.com/exilleon/AR-schematics.git
+cd AR-schematics
+git switch laravel-13-conversion
+composer install
 ```
 
-- **`index.html`** — Contains the page interface, styles, AR scene, and JavaScript logic.
-- **`artstation_challenge_-_untamed_-_cat_duelist.glb`** — A sample 3D model asset included in the repository.
-- **`package-lock.json`** — Lockfile present in the repository; the current project page does not require an npm build step.
+On Windows PowerShell:
+```powershell
+Copy-Item .env.example .env
+New-Item -ItemType File -Force database/database.sqlite
+php artisan key:generate
+php artisan serve
+```
 
-## Getting Started
+On macOS/Linux:
+```bash
+cp .env.example .env
+touch database/database.sqlite
+php artisan key:generate
+php artisan serve
+```
 
-### Option 1: Run locally
+Open http://127.0.0.1:8000. If Composer reports a PHP constraint, install the PHP version required by Laravel 13 and its dependencies.
 
-1. Clone or download this repository:
+## Use
+1. Select a local `.glb` or `.gltf` file.
+2. Click **Start AR simulation** and allow camera access.
+3. Adjust model scale and height, then close the camera view to return.
 
-   ```bash
-   git clone https://github.com/exilleon/AR-schematics.git
-   cd AR-schematics
-   ```
+The selected model is loaded locally in the browser and is not uploaded to Laravel. Camera access generally requires HTTPS except on localhost. The current prototype does not implement WebXR surface detection or persistent model uploads.
 
-2. Serve the project through a local HTTP server. For example, if Python is installed:
+## Key files
+- `routes/web.php` — homepage and health routes
+- `resources/views/ar-simulator.blade.php` — Blade interface and AR scene
+- `public/css/app.css` — responsive styling
+- `public/js/app.js` — model selection and scene controls
+- `bootstrap/app.php` — Laravel 13 bootstrap
 
-   ```bash
-   python -m http.server 8000
-   ```
-
-3. Open [http://localhost:8000](http://localhost:8000) in your browser.
-4. Select a `.glb` or `.gltf` model.
-5. Click **Start AR Simulation** to open the scene.
-
-A local server is recommended instead of opening the HTML file directly, because camera access and browser features may be restricted when a page is opened using a `file://` URL.
-
-### Option 2: Deploy as a static website
-
-You can host the HTML project using a static web host, such as GitHub Pages.
-
-1. Open the repository's **Settings** on GitHub.
-2. Find **Pages**.
-3. Configure deployment from the branch containing `index.html` (typically `main`) and the repository root.
-4. Save the settings and wait for GitHub Pages to publish the site.
-
-For camera access, use the published HTTPS website and grant the browser camera permission when prompted. Device and browser compatibility may vary.
-
-## How to Use
-
-1. Open the simulator.
-2. Choose **Select 3D Plan File**.
-3. Select a local `.glb` or `.gltf` model.
-4. Once the model is selected, click **Start AR Simulation**.
-5. Allow camera access if requested and view the scene.
-
-The included sample asset is a cat-duelist 3D model, not a construction plan; you can upload a suitable construction model to test the intended workflow.
-
-## Current Limitations
-
-- **Surface placement is not implemented yet.** The current code displays the model at a preset scene position; it does not perform real-world surface detection or WebXR hit testing.
-- The AR experience depends on camera permissions, browser support, and the externally hosted libraries.
-- The selected local model is loaded for the current browser session; the page does not upload it to a server or save it as a project.
-- The model container uses a fixed scale and position, so different models may need adjustment.
-- Fullscreen may be unavailable in some browsers or contexts.
-
-## Future Improvements
-
-- Add WebXR hit testing and real-world surface placement.
-- Add controls for model position, rotation, and scale.
-- Add loading and error feedback for unsupported or invalid model files.
-- Provide a reset or re-upload option.
-- Improve mobile layout and test across supported devices.
-- Add construction-specific model examples and usage guidance.
-
-## Contributing
-
-1. Fork the repository.
-2. Create a branch for your changes.
-3. Make and test your updates.
-4. Submit a pull request describing the changes.
-
-## License
-
-No license is currently specified in this repository. Unless a license is added, do not assume the project is available for unrestricted reuse or redistribution.
+The original `index.html` and existing model assets are retained for reference. Run this app through Laravel, not as a static HTML site.
