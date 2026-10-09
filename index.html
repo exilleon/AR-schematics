@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR Construction Schematic Simulator</title>
+    <!-- Import A-Frame for 3D/AR logic -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!-- Import XR Component for AR capabilities -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+      /* UI Overlay for the file upload */
+      #ui-layer {
+        position: absolute;
+        z-index: 100;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 40px;
+        border-radius: 15px;
+        color: white;
+        font-family: Arial, sans-serif;
+        width: 80%;
+        max-width: 400px;
+      }
+      
+      h1 { font-size: 1.2rem; margin-bottom: 20px; }
+      
+      input[type="file"] {
+        display: none;
+      }
+
+      .upload-btn {
+        background: #007AFF;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        border: none;
+      }
+      
+      .upload-btn:hover { background: #0056b3; }
+
+      /* Hide the 3D scene initially until file is loaded */
+      #ar-scene { display: none; }
+      
+      /* Button to enter AR mode */
+      #enter-ar-btn {
+        display: none;
+        margin-top: 20px;
+        background: #34C759;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+      <h1>Upload Construction Plan (.glb)</h1>
+      <label for="file-upload" class="upload-btn">📂 Select 3D Plan File</label>
+      <input id="file-upload" type="file" accept=".glb, .gltf"/>
+      
+      <button id="enter-ar-btn">Start AR Simulation</button>
+    </div>
+
+    <!-- AR Scene -->
+    <!-- 'arjs' enables the camera view -->
+    <a-scene id="ar-scene" arjs="sourceType: webcam; debugUIEnabled: false;" renderer="alpha: true" vr-mode-ui="enabled: false">
+        
+        <!-- The camera with cursor to tap/place objects -->
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- This entity will hold the uploaded 3D Model -->
+        <a-entity id="model-container" position="0 0 -3" scale="0.5 0.5 0.5">
+            <!-- The model gets injected here by JS -->
+        </a-entity>
+        
+        <!-- A ground grid to help visualize placement (like the image) -->
+        <a-grid id="grid" geometry="primitive: plane; width: 100; height: 100;" 
+                material="color: #007AFF; opacity: 0.3; wireframe: true" 
+                position="0 -2 -10" rotation="-90 0 0"></a-grid>
+
+    </a-scene>
+
+    <script>
+      const fileInput = document.getElementById('file-upload');
+      const enterArBtn = document.getElementById('enter-ar-btn');
+      const arScene = document.getElementById('ar-scene');
+      const uiLayer = document.getElementById('ui-layer');
+      const modelContainer = document.getElementById('model-container');
+
+      let fileURL = null;
+
+      // 1. Handle File Upload
+      fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          fileURL = URL.createObjectURL(file);
+          
+          // Update UI
+          enterArBtn.style.display = 'inline-block';
+          enterArBtn.textContent = `Start AR: ${file.name}`;
+          
+          // Preload the model into the hidden scene
+          modelContainer.innerHTML = `<a-entity gltf-model="${fileURL}"></a-entity>`;
+          
+          alert("Plan loaded! Click Start AR to launch camera.");
+        }
+      });
+
+      // 2. Start AR Experience
+      enterArBtn.addEventListener('click', () => {
+        // Hide UI
+        uiLayer.style.display = 'none';
+        
+        // Show 3D Scene
+        arScene.style.display = 'block';
+        
+        // Request fullscreen for better immersion
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        }
+        
+        // Optional: Simple animation to mimic the "scanning" effect in your image
+        modelContainer.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 10000');
+      });
+
+      // 3. Hit Test Logic (Placing the model on real surfaces)
+      // Note: Real-world hit testing requires WebXR supported browsers (Chrome Android mostly).
+      // For a desktop simulator, we just display the model floating.
+    </script>
+  </body>
+</html>
